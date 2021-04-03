@@ -1,0 +1,21 @@
+{
+  "name": "agriism-api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node -r ts-node/register server.ts"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.0.0",
+    "express": "~4.16.1",
+    "mongodb": "^3.3.4",
+    "ts-node": "^6.1.1",
+    "typescript": "^3.9.2",
+    "uuid": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^8.10.20",
+    "@types/mongodb": "^3.3.10"
+  }
+}
