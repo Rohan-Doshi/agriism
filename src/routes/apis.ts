@@ -29,6 +29,9 @@ router.post('/account/create', async function (req, res, next) {
         phone
     }).then(account => {
         return res.send(account);
+    }).catch(error => {
+        console.log(`Error creating account with email ${emailId}. Error: ${JSON.stringify(error)}`);
+        return res.status(500).send('Error creating account');
     });
 });
 
@@ -38,20 +41,29 @@ router.post('/account/login', async function (req, res, next) {
 
     return accountRepo.getUser(emailId, password).then(account => {
         return res.send(account);
+    }).catch(error => {
+        console.log(`Error logging in with email ${emailId}. Error: ${JSON.stringify(error)}`);
+        return res.status(500).send('Error logging into account');
     });
 });
 
 router.post('/rates/add', async function (req, res, next) {
     const id = req.body.userPk;
+    const city = req.body.cityname;
     const rates: ProductRates[] = req.body.rates;
     const date = new Date().toLocaleDateString();
 
-    return ratesRepo.addRates({
+    return Promise.all(rates.map(rate => ratesRepo.addRates({
         accountId: id,
         date,
-        rates
-    }).then(result => {
+        city,
+        productName: rate.productName,
+        rate: rate.rate
+    }))).then(result => {
         return res.send({message: 'added'});
+    }).catch(error => {
+        console.log(`Error adding rates for user: ${id}. Error: ${JSON.stringify(error)}`);
+        return res.status(500).send('Error adding rates');
     });
 });
 

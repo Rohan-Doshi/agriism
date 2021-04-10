@@ -19,10 +19,15 @@ export class AccountsRepo {
             });
     }
 
+    async getRates(localeDateString: string): Promise<RateDetails[]> {
+        return (await this.collection).find({date: localeDateString}).toArray();
+    }
+
     private async buildIndex() {
-        (await this.collection).createIndex({emailId: 1}, {unique: true});
-        (await this.collection).createIndex({pk: 1}, {unique: true});
-        (await this.collection).createIndex({pinCode: 1});
+        (await this.collection).createIndex({date: 1, accountId: 1, city: 1, productName: 1}, {unique: true});
+        (await this.collection).createIndex({city: 1});
+        (await this.collection).createIndex({date: 1});
+        (await this.collection).createIndex({accountId: 1});
     }
 }
 
@@ -31,7 +36,9 @@ export const ratesRepo = new AccountsRepo(mongoDbClient);
 export interface RateDetails {
     date: string;
     accountId: string;
-    rates: ProductRates[];
+    city: string;
+    productName: string;
+    rate: number;
 }
 
 export interface ProductRates {

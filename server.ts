@@ -1,7 +1,7 @@
+require('dotenv').config();
 import {apiRouter} from "./src/routes/apis";
 import * as bodyParser from 'body-parser';
-
-require('dotenv').config();
+import {dashboardRouter} from "./src/routes/dashboard";
 
 const Express = require('express');
 const app = Express();
@@ -9,6 +9,7 @@ const app = Express();
 // shim();
 app.use(bodyParser.json());
 app.use('/api/v1', apiRouter);
+app.use('/api/dashboard', dashboardRouter);
 
 const port = process.env.PORT || 3000;
 const env = process.env.NODE_ENV || 'development';
