@@ -48,10 +48,10 @@ router.post('/account/login', async function (req, res, next) {
 });
 
 router.post('/rates/add', async function (req, res, next) {
-    const id = req.body.userPk.toString();
-    const clientName = req.body.clientName.toString();
+    const id = req.body.userPk.toString().trim();
+    const clientName = req.body.clientName.toString().trim();
     const clientPhoneNumber = req.body.clientPhoneNumber;
-    const city = req.body.cityname;
+    const city = req.body.cityname.trim();
     const rates: ProductRates[] = req.body.rates.filter(r => !!r.rate && r.rate > 0);
     const date = new Date().toLocaleDateString();
 
@@ -59,7 +59,7 @@ router.post('/rates/add', async function (req, res, next) {
         accountId: id,
         date,
         city,
-        productName: rate.productName,
+        productName: rate.productName.trim(),
         rate: rate.rate,
         clientName: clientName,
         clientPhoneNumber: clientPhoneNumber

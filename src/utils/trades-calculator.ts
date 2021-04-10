@@ -8,7 +8,10 @@ export function getMinMaxRateForAllProducts(allRatesOfDay: RateDetails[]) {
     for (let product of allProducts) {
         let allRatesForProduct = productsMap[product];
         let minRates = _.minBy(allRatesForProduct, 'rate');
-        let maxRates = _.maxBy(allRatesForProduct, 'rate')
+        let maxRates = _.maxBy(allRatesForProduct, 'rate');
+        if (minRates.city === maxRates.city) {
+            continue;
+        }
         minMaxRates.push({
             productName: product,
             profitPercentage: _.round((maxRates.rate - minRates.rate) * 100 / minRates.rate, 2),
@@ -33,7 +36,7 @@ export function findAllPossibleTradesFrom(allRatesOfDay: RateDetails[], sourceCi
     const sourceCityProducts = Object.keys(sourceCityRates);
     for (let product of sourceCityProducts) {
         let minRates = _.minBy(sourceCityRates[product], rate => rate.rate);
-        let allValidTradeOptions = allProductMap[product].filter(p => p.rate > minRates.rate);
+        let allValidTradeOptions = allProductMap[product].filter(p => p.rate > minRates.rate && p.city !== minRates.city);
         if (allValidTradeOptions.length === 0) {
             continue;
         }
@@ -64,7 +67,7 @@ export function findAllPossibleTradesBetween(allRatesOfDay: RateDetails[], sourc
     const minMaxRates = [];
     const sourceCityProducts = Object.keys(sourceCityRates);
     for (let product of sourceCityProducts) {
-        if (destinationCityRates[product].length === 0) {
+        if (!destinationCityRates[product] || destinationCityRates[product].length === 0) {
             continue;
         }
         let minRates = _.minBy(sourceCityRates[product], rate => rate.rate);
@@ -85,3 +88,4 @@ export function findAllPossibleTradesBetween(allRatesOfDay: RateDetails[], sourc
     }
     return minMaxRates;
 }
+
