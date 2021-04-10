@@ -48,9 +48,11 @@ router.post('/account/login', async function (req, res, next) {
 });
 
 router.post('/rates/add', async function (req, res, next) {
-    const id = req.body.userPk;
+    const id = req.body.userPk.toString();
+    const clientName = req.body.clientName.toString();
+    const clientPhoneNumber = req.body.clientPhoneNumber;
     const city = req.body.cityname;
-    const rates: ProductRates[] = req.body.rates;
+    const rates: ProductRates[] = req.body.rates.filter(r => !!r.rate && r.rate > 0);
     const date = new Date().toLocaleDateString();
 
     return Promise.all(rates.map(rate => ratesRepo.addRates({
@@ -58,7 +60,9 @@ router.post('/rates/add', async function (req, res, next) {
         date,
         city,
         productName: rate.productName,
-        rate: rate.rate
+        rate: rate.rate,
+        clientName: clientName,
+        clientPhoneNumber: clientPhoneNumber
     }))).then(result => {
         return res.send({message: 'added'});
     }).catch(error => {

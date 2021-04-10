@@ -3,14 +3,22 @@ import * as _ from 'lodash';
 
 export function getMinMaxRateForAllProducts(allRatesOfDay: RateDetails[]) {
     const productsMap = _.groupBy<RateDetails>(allRatesOfDay, 'productName');
-    const minMaxRates = {};
+    const minMaxRates = [];
     const allProducts = Object.keys(productsMap);
     for (let product of allProducts) {
         let allRatesForProduct = productsMap[product];
-        minMaxRates[product] = {
-            minRates: _.minBy(allRatesForProduct, 'rate'),
-            maxRates: _.maxBy(allRatesForProduct, 'rate')
-        };
+        let minRates = _.minBy(allRatesForProduct, 'rate');
+        let maxRates = _.maxBy(allRatesForProduct, 'rate')
+        minMaxRates.push({
+            productName: product,
+            profitPercentage: _.round((maxRates.rate - minRates.rate) * 100 / minRates.rate, 2),
+            minRate: minRates.rate,
+            sourceCity: minRates.city,
+            sourceVendor: minRates.clientName + "<" + minRates.clientPhoneNumber.toString() + ">",
+            maxRate: maxRates.rate,
+            destinationCity: maxRates.city,
+            destinationVendor: maxRates.clientName + "<" + maxRates.clientPhoneNumber.toString() + ">",
+        });
     }
     return minMaxRates;
 }
@@ -20,20 +28,28 @@ export function findAllPossibleTradesFrom(allRatesOfDay: RateDetails[], sourceCi
         .filter(rate => rate.city === sourceCity)
         .groupBy(rate => rate.productName)
         .value();
-    const minMaxRates = {};
+    const minMaxRates = [];
     const allProductMap = _.groupBy<RateDetails>(allRatesOfDay, 'productName');
     const sourceCityProducts = Object.keys(sourceCityRates);
     for (let product of sourceCityProducts) {
-        let minRateOfCity = _.minBy(sourceCityRates[product], rate => rate.rate);
-        let allValidTradeOptions = allProductMap[product].filter(p => p.rate > minRateOfCity.rate);
+        let minRates = _.minBy(sourceCityRates[product], rate => rate.rate);
+        let allValidTradeOptions = allProductMap[product].filter(p => p.rate > minRates.rate);
         if (allValidTradeOptions.length === 0) {
             continue;
         }
-        minMaxRates[product] = {
-            minRates: minRateOfCity,
-            maxRates: _.maxBy(allValidTradeOptions, 'rate')
-        };
+        let maxRates = _.maxBy(allValidTradeOptions, 'rate')
+        minMaxRates.push({
+            productName: product,
+            profitPercentage: _.round((maxRates.rate - minRates.rate) * 100 / minRates.rate, 2),
+            minRate: minRates.rate,
+            sourceCity: minRates.city,
+            sourceVendor: minRates.clientName + "<" + minRates.clientPhoneNumber.toString() + ">",
+            maxRate: maxRates.rate,
+            destinationCity: maxRates.city,
+            destinationVendor: maxRates.clientName + "<" + maxRates.clientPhoneNumber.toString() + ">",
+        });
     }
+    return minMaxRates;
 }
 
 export function findAllPossibleTradesBetween(allRatesOfDay: RateDetails[], sourceCity: string, destination: string) {
@@ -41,24 +57,31 @@ export function findAllPossibleTradesBetween(allRatesOfDay: RateDetails[], sourc
         .filter(rate => rate.city === sourceCity)
         .groupBy(rate => rate.productName)
         .value();
-    const minMaxRates = {};
     const destinationCityRates = _.chain(allRatesOfDay)
         .filter(rate => rate.city === destination)
         .groupBy(rate => rate.productName)
         .value();
+    const minMaxRates = [];
     const sourceCityProducts = Object.keys(sourceCityRates);
     for (let product of sourceCityProducts) {
         if (destinationCityRates[product].length === 0) {
             continue;
         }
-        let minRateOfSourceCity = _.minBy(sourceCityRates[product], rate => rate.rate);
-        let maxRateOfDestinationCity = _.maxBy(destinationCityRates[product], rate => rate.rate);
-        if (maxRateOfDestinationCity.rate < minRateOfSourceCity.rate) {
+        let minRates = _.minBy(sourceCityRates[product], rate => rate.rate);
+        let maxRates = _.maxBy(destinationCityRates[product], rate => rate.rate);
+        if (maxRates.rate < minRates.rate) {
             continue;
         }
-        minMaxRates[product] = {
-            minRates: minRateOfSourceCity,
-            maxRates: maxRateOfDestinationCity
-        };
+        minMaxRates.push({
+            productName: product,
+            profitPercentage: _.round((maxRates.rate - minRates.rate) * 100 / minRates.rate, 2),
+            minRate: minRates.rate,
+            sourceCity: minRates.city,
+            sourceVendor: minRates.clientName + "<" + minRates.clientPhoneNumber.toString() + ">",
+            maxRate: maxRates.rate,
+            destinationCity: maxRates.city,
+            destinationVendor: maxRates.clientName + "<" + maxRates.clientPhoneNumber.toString() + ">",
+        });
     }
+    return minMaxRates;
 }

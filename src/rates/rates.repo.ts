@@ -19,6 +19,11 @@ export class AccountsRepo {
             });
     }
 
+    async getAllLocations(): Promise<string[]> {
+        return (await this.collection)
+            .distinct('city').then(r => r);
+    }
+
     async getRates(localeDateString: string): Promise<RateDetails[]> {
         return (await this.collection).find({date: localeDateString}).toArray();
     }
@@ -39,6 +44,8 @@ export interface RateDetails {
     city: string;
     productName: string;
     rate: number;
+    clientName: string;
+    clientPhoneNumber: number;
 }
 
 export interface ProductRates {

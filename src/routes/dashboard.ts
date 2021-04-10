@@ -5,10 +5,11 @@ import {
     findAllPossibleTradesFrom,
     getMinMaxRateForAllProducts
 } from "../utils/trades-calculator";
+import * as _ from 'lodash';
 
 const router = Router();
 
-router.post('/trades/all', async function (req, res, next) {
+router.post('/trades/all', async (req, res, next) => {
     const sourceCity = req.body.sourceCity;
     const destinationCity = req.body.destinationCity;
     const dateOfTrade = req.body.dateOfTrade.toString();
@@ -24,8 +25,13 @@ router.post('/trades/all', async function (req, res, next) {
     } else {
         responseData = getMinMaxRateForAllProducts(allRatesOfDay);
     }
-    return res.status(200).send({data: responseData});
+    return res.status(200).send({data: _.orderBy(responseData, 'profitPercentage', 'desc')});
 });
+
+router.get('/locations', async (req, res, next) => {
+    const locationsData = await ratesRepo.getAllLocations();
+    return res.status(200).send({locations: locationsData});
+})
 
 export const dashboardRouter = router;
 
